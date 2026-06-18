@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workcosmo Space</title>
+    <meta
+      name="description"
+      content="Unified Workcosmo login, company dashboard, and product launcher."
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://workcosmo.in/app/assets/images/favicon.png"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body>
+    <main class="space-shell">
+      <section id="login-view" class="login-layout">
+        <div class="brand-panel">
+          <a href="https://workcosmo.in" class="brand-lockup">
+            <img
+              src="https://workcosmo.in/src/images/ngu_logo.png"
+              alt="Workcosmo"
+            />
+            <span>Workcosmo Space</span>
+          </a>
+          <div class="brand-copy">
+            <p class="eyebrow">Company Operating System</p>
+            <h1>Enter your Space.</h1>
+            <p>One identity layer for Hire, Core, and Perform.</p>
+          </div>
+        </div>
+
+        <form id="login-form" class="login-card">
+          <div>
+            <p class="eyebrow">Unified Login</p>
+            <h2>Welcome back</h2>
+          </div>
+
+          <label>
+            <span>Client ID</span>
+            <input
+              id="client-id"
+              type="text"
+              autocomplete="organization"
+              placeholder="company-subdomain"
+            />
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input
+              id="email"
+              type="email"
+              autocomplete="email"
+              placeholder="name@company.com"
+            />
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Password"
+            />
+          </label>
+
+          <button type="submit">Enter Space</button>
+          <button id="reset-password" type="button" class="link-button">
+            Send password reset
+          </button>
+          <p id="login-error" class="feedback hidden"></p>
+        </form>
+      </section>
+
+      <section id="dashboard-view" class="dashboard hidden">
+        <aside class="workspace-panel">
+          <a href="https://workcosmo.in" class="brand-lockup compact">
+            <img
+              src="https://workcosmo.in/src/images/ngu_logo.png"
+              alt="Workcosmo"
+            />
+            <span>Workcosmo</span>
+          </a>
+
+          <div class="workspace-identity">
+            <p class="eyebrow">Workspace</p>
+            <h1 id="company-name">Company</h1>
+            <p id="company-id">company-id</p>
+          </div>
+
+          <dl class="meta-list">
+            <div>
+              <dt>User</dt>
+              <dd id="user-name">User</dd>
+            </div>
+            <div>
+              <dt>Email</dt>
+              <dd id="user-email">user@example.com</dd>
+            </div>
+            <div>
+              <dt>Role</dt>
+              <dd id="user-role">member</dd>
+            </div>
+            <div>
+              <dt>Plan</dt>
+              <dd id="plan">starter</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd id="status">active</dd>
+            </div>
+          </dl>
+
+          <p id="powered-by" class="powered">Powered by Workcosmo</p>
+        </aside>
+
+        <section class="modules-panel">
+          <header>
+            <div>
+              <p class="eyebrow">Modules</p>
+              <h2>Launch your Workcosmo apps</h2>
+            </div>
+            <button id="sign-out" type="button" class="ghost-button">
+              <i class="fas fa-arrow-right-from-bracket"></i>
+              Sign out
+            </button>
+          </header>
+
+          <div id="modules-grid" class="modules-grid"></div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="./src/space.js"></script>
+  </body>
+</html>

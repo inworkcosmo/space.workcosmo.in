@@ -1,0 +1,14 @@
+{
+  "name": "workcosmo-space",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx -y live-server . --port=8090",
+    "format": "npx prettier --write \"src/**/*.js\" \"*.html\""
+  },
+  "dependencies": {
+    "firebase": "^10.0.0",
+    "live-server": "^1.2.2"
+  }
+}
