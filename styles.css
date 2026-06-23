@@ -56,15 +56,16 @@ input {
 .login-layout {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(360px, 520px);
+    background: #f8fafc;
 }
 
 .brand-panel {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 48px;
+    padding: 56px;
     background:
-        linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(15, 23, 42, 0.94)),
+        linear-gradient(135deg, rgba(37, 99, 235, 0.88), rgba(15, 23, 42, 0.96)),
         url("https://workcosmo.in/src/images/app_recruit.png") center / cover;
     color: #ffffff;
 }
@@ -115,62 +116,73 @@ p {
 
 .brand-copy h1 {
     margin-bottom: 18px;
-    font-size: clamp(44px, 6vw, 82px);
-    line-height: 0.95;
+    font-size: clamp(40px, 5vw, 68px);
+    line-height: 1.05;
     letter-spacing: -0.04em;
+    font-weight: 900;
 }
 
 .brand-copy p:last-child {
     max-width: 560px;
     color: #dbeafe;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1.6;
+    font-weight: 500;
 }
 
 .login-card {
     align-self: center;
     margin: 40px;
-    padding: 40px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--panel);
-    box-shadow: var(--shadow);
+    padding: 48px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    width: calc(100% - 80px);
+    max-width: 440px;
+    justify-self: center;
 }
 
 .login-card h2 {
-    margin-bottom: 28px;
-    font-size: 34px;
-    letter-spacing: -0.03em;
+    margin-bottom: 24px;
+    font-size: 28px;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
 }
 
 label {
     display: grid;
-    gap: 8px;
-    margin-bottom: 18px;
+    gap: 6px;
+    margin-bottom: 20px;
 }
 
 label span {
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: 0.08em;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
 input {
     width: 100%;
     height: 48px;
-    padding: 0 14px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: #ffffff;
-    color: var(--text);
+    padding: 0 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 500;
     outline: none;
+    transition: all 0.2s ease;
 }
 
 input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
 button[type="submit"],
@@ -179,22 +191,31 @@ button[type="submit"],
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 46px;
+    min-height: 48px;
     border: 0;
-    border-radius: 8px;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: 900;
+    font-weight: 700;
+    font-size: 14.5px;
 }
 
 button[type="submit"] {
     width: 100%;
-    margin-top: 8px;
-    background: var(--primary);
+    margin-top: 12px;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2), 0 2px 4px -1px rgba(37, 99, 235, 0.1);
+    transition: all 0.2s ease;
 }
 
 button[type="submit"]:hover {
-    background: var(--primary-dark);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -1px rgba(37, 99, 235, 0.3), 0 4px 6px -1px rgba(37, 99, 235, 0.1);
+}
+
+button[type="submit"]:active {
+    transform: translateY(1px);
 }
 
 button:disabled {
@@ -204,12 +225,19 @@ button:disabled {
 
 .link-button {
     display: block;
-    margin: 16px auto 0;
+    margin: 18px auto 0;
     border: 0;
     background: transparent;
-    color: var(--primary);
+    color: #2563eb;
     cursor: pointer;
-    font-weight: 800;
+    font-weight: 700;
+    font-size: 13.5px;
+    transition: color 0.15s ease;
+}
+
+.link-button:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
 }
 
 .feedback {

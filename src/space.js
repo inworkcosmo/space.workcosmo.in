@@ -152,14 +152,18 @@ function renderModules(company) {
         // Build URL with SSO token query parameter
         const url = buildModuleUrl(moduleKey, cid, idToken);
 
-        // Redirect
-        window.location.href = url;
+        // Open in new tab
+        window.open(url, "_blank");
+        setTimeout(() => {
+          label.textContent = originalText;
+          card.style.pointerEvents = "";
+        }, 1000);
       } catch (err) {
         console.error("SSO launch failed:", err);
         label.textContent = originalText;
         card.style.pointerEvents = "";
-        // Fallback: direct navigation without SSO token
-        window.location.href = buildModuleUrl(moduleKey, cid);
+        // Fallback: open in new tab without SSO token
+        window.open(buildModuleUrl(moduleKey, cid), "_blank");
       }
     });
   });
