@@ -231,8 +231,8 @@ button:disabled {
 .workspace-panel {
     display: flex;
     flex-direction: column;
-    gap: 32px;
-    padding: 32px;
+    gap: 20px;
+    padding: 20px;
     border-right: 1px solid var(--line);
     background: var(--panel);
     overflow-y: auto;
