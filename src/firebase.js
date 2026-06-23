@@ -17,6 +17,8 @@ import {
   limit,
   query,
   where,
+  setDoc,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 export const firebaseConfig = {
@@ -47,4 +49,6 @@ export {
   signInWithEmailAndPassword,
   signOut,
   where,
+  setDoc,
+  serverTimestamp,
 };

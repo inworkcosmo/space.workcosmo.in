@@ -53,9 +53,33 @@ function displayName(user, profile) {
 
 async function loadUserProfile(user) {
   try {
-    const snap = await getDoc(doc(db, "users", user.uid));
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
     if (snap.exists()) {
       return { id: snap.id, ...snap.data() };
+    }
+
+    // Fallback: Handle misaligned UIDs by querying by email
+    const { collection, query, where, limit, getDocs, setDoc, serverTimestamp } = await import("./firebase.js");
+    const q = query(collection(db, "users"), where("email", "==", user.email), limit(1));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const docSnap = querySnapshot.docs[0];
+      const data = docSnap.data();
+
+      // Auto-fix misaligned document by cloning it to the correct UID path
+      try {
+        await setDoc(userRef, {
+          ...data,
+          userId: user.uid,
+          updatedAt: serverTimestamp()
+        });
+      } catch (fixErr) {
+        console.warn("Auto-fix misaligned UID failed:", fixErr);
+      }
+
+      return { id: user.uid, ...data };
     }
   } catch (err) {
     console.warn("Could not load user profile:", err);
