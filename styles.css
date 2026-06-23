@@ -39,12 +39,18 @@ input {
 }
 
 .space-shell {
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
 }
 
-.login-layout,
-.dashboard {
+.login-layout {
     min-height: 100vh;
+    overflow-y: auto;
+}
+
+.dashboard {
+    height: 100%;
+    overflow: hidden;
 }
 
 .login-layout {
@@ -229,6 +235,7 @@ button:disabled {
     padding: 32px;
     border-right: 1px solid var(--line);
     background: var(--panel);
+    overflow-y: auto;
 }
 
 .workspace-identity h1 {
@@ -280,6 +287,10 @@ button:disabled {
 
 .modules-panel {
     padding: 32px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 .modules-panel header {
@@ -307,6 +318,9 @@ button:disabled {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 16px;
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 24px;
 }
 
 .module-card {
@@ -376,9 +390,16 @@ button:disabled {
 }
 
 @media (max-width: 900px) {
+    .space-shell {
+        height: auto;
+        overflow: visible;
+    }
+
     .login-layout,
     .dashboard {
         grid-template-columns: 1fr;
+        height: auto;
+        overflow: visible;
     }
 
     .brand-panel {
@@ -394,6 +415,16 @@ button:disabled {
     .workspace-panel {
         border-right: 0;
         border-bottom: 1px solid var(--line);
+        overflow-y: visible;
+    }
+
+    .modules-panel {
+        height: auto;
+        overflow: visible;
+    }
+
+    .modules-grid {
+        overflow-y: visible;
     }
 
     .modules-panel header {
