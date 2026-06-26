@@ -26,13 +26,14 @@ const els = {
   resetBtn: document.getElementById("reset-password"),
   signOutBtn: document.getElementById("sign-out"),
   companyName: document.getElementById("company-name"),
+  companyNameCard: document.getElementById("company-name-card"),
   companyId: document.getElementById("company-id"),
   userName: document.getElementById("user-name"),
   userEmail: document.getElementById("user-email"),
   userRole: document.getElementById("user-role"),
   plan: document.getElementById("plan"),
   status: document.getElementById("status"),
-  modulesGrid: document.getElementById("modules-grid"),
+  modulesDock: document.getElementById("modules-dock"),
   poweredBy: document.getElementById("powered-by"),
 };
 
@@ -102,44 +103,33 @@ function renderModules(company) {
       company?.id ||
       "",
   );
-  els.modulesGrid.innerHTML = WORKCOSMO_MODULES.map((mod) => {
+  els.modulesDock.innerHTML = WORKCOSMO_MODULES.map((mod) => {
     const enabled = isModuleEnabled(company, mod.key);
     const live = enabled && mod.status === "live";
     const href = live ? buildModuleUrl(mod.key, cid) : "#";
-    const stateLabel = live
-      ? "Launch"
-      : enabled
-        ? "Coming soon"
-        : "Not enabled";
-    const disabledClass = live ? "" : " module-card-disabled";
+    const disabledClass = live ? "" : " disabled";
     const disabledAttr = live ? "" : ' aria-disabled="true"';
 
     return `
-            <a class="module-card${disabledClass}" href="${href}"${disabledAttr} data-module="${mod.key}">
-                <span class="module-icon"><i class="fas ${mod.icon}"></i></span>
-                <span class="module-copy">
-                    <strong>${mod.productName}</strong>
-                    <small>${mod.description}</small>
-                </span>
-                <span class="module-state">${stateLabel}</span>
+            <a class="dock-module${disabledClass}" href="${href}"${disabledAttr} data-module="${mod.key}" title="${mod.label}">
+                <i class="fas ${mod.icon}"></i>
+                <span class="dock-module-label">${mod.label}</span>
             </a>
         `;
   }).join("");
 
-  els.modulesGrid.querySelectorAll("[aria-disabled='true']").forEach((card) => {
-    card.addEventListener("click", (event) => event.preventDefault());
+  els.modulesDock.querySelectorAll("[aria-disabled='true']").forEach((button) => {
+    button.addEventListener("click", (event) => event.preventDefault());
   });
 
-  els.modulesGrid.querySelectorAll(".module-card:not([aria-disabled='true'])").forEach((card) => {
-    card.addEventListener("click", async (event) => {
+  els.modulesDock.querySelectorAll(".dock-module:not([aria-disabled='true'])").forEach((button) => {
+    button.addEventListener("click", async (event) => {
       event.preventDefault();
-      const moduleKey = card.getAttribute("data-module");
-      const label = card.querySelector(".module-state");
-      const originalText = label.textContent;
+      const moduleKey = button.getAttribute("data-module");
 
       try {
-        label.textContent = "Launching...";
-        card.style.pointerEvents = "none";
+        button.style.pointerEvents = "none";
+        button.style.opacity = "0.7";
 
         const user = auth.currentUser;
         if (!user) {
@@ -155,13 +145,13 @@ function renderModules(company) {
         // Open in new tab
         window.open(url, "_blank");
         setTimeout(() => {
-          label.textContent = originalText;
-          card.style.pointerEvents = "";
+          button.style.pointerEvents = "";
+          button.style.opacity = "";
         }, 1000);
       } catch (err) {
         console.error("SSO launch failed:", err);
-        label.textContent = originalText;
-        card.style.pointerEvents = "";
+        button.style.pointerEvents = "";
+        button.style.opacity = "";
         // Fallback: open in new tab without SSO token
         window.open(buildModuleUrl(moduleKey, cid), "_blank");
       }
@@ -173,16 +163,25 @@ function renderDashboard(user, profile, company) {
   const cid = normalizeClientId(
     company?.companyId || profile?.companyId || company?.id || "",
   );
-  els.companyName.textContent =
-    company?.companyName || company?.name || "Workcosmo Workspace";
-  els.companyId.textContent = cid || "workspace";
+  const companyDisplayName = company?.companyName || company?.name || "Workcosmo Workspace";
+  
+  // Update top bar
+  els.companyName.textContent = companyDisplayName;
   els.userName.textContent = displayName(user, profile);
-  els.userEmail.textContent = user.email || profile?.email || "";
   els.userRole.textContent = profile?.role || "member";
+  
+  // Update workspace card
+  els.companyNameCard.textContent = companyDisplayName;
+  els.companyId.textContent = cid || "workspace";
+  els.userEmail.textContent = user.email || profile?.email || "";
   els.plan.textContent = company?.plan || "starter";
   els.status.textContent = company?.status || "active";
   els.poweredBy.textContent = "Powered by Workcosmo";
+  
+  // Render modules in dock
   renderModules(company);
+  
+  // Show dashboard, hide login
   els.loginView.classList.add("hidden");
   els.dashboardView.classList.remove("hidden");
 }

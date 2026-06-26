@@ -35,6 +35,18 @@ export const WORKCOSMO_MODULES = Object.freeze([
     featureKey: "performModule",
     status: "live",
   },
+  {
+    key: "ai",
+    productName: "Workcosmo AI",
+    shortName: "CosmoAI",
+    label: "AI",
+    description:
+      "AI-powered insights, resume parsing, interview preparation, and automation.",
+    icon: "fa-brain",
+    subdomain: "ai",
+    featureKey: "aiModule",
+    status: "live",
+  },
 ]);
 
 export function normalizeClientId(value = "") {

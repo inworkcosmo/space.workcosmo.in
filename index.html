@@ -56,58 +56,58 @@
     </section>
 
     <section id="dashboard-view" class="dashboard hidden">
-      <aside class="workspace-panel">
-        <a href="https://workcosmo.in" class="brand-lockup compact">
-          <img src="https://workcosmo.in/src/images/ngu_logo.png" alt="Workcosmo" />
-          <span>Workcosmo</span>
-        </a>
-
-        <div class="workspace-identity">
-          <p class="eyebrow">Workspace</p>
-          <h1 id="company-name">Company</h1>
-          <p id="company-id">company-id</p>
+      <!-- Top Bar -->
+      <div class="dashboard-top-bar">
+        <div class="workspace-top-info">
+          <h1 id="company-name">Workspace</h1>
+          <p id="company-id">workspace-id</p>
         </div>
-
-        <dl class="meta-list">
+        <div class="user-top-info">
           <div>
-            <dt>User</dt>
-            <dd id="user-name">User</dd>
+            <small>User</small>
+            <span id="user-name">User</span>
           </div>
           <div>
-            <dt>Email</dt>
-            <dd id="user-email">user@example.com</dd>
+            <small>Role</small>
+            <span id="user-role">member</span>
           </div>
-          <div>
-            <dt>Role</dt>
-            <dd id="user-role">member</dd>
-          </div>
-          <div>
-            <dt>Plan</dt>
-            <dd id="plan">starter</dd>
-          </div>
-          <div>
-            <dt>Status</dt>
-            <dd id="status">active</dd>
-          </div>
-        </dl>
-
-        <p id="powered-by" class="powered">Powered by Workcosmo</p>
-      </aside>
-
-      <section class="modules-panel">
-        <header>
-          <div>
-            <p class="eyebrow">Modules</p>
-            <h2>Launch your Workcosmo apps</h2>
-          </div>
-          <button id="sign-out" type="button" class="ghost-button">
+          <button id="sign-out" type="button" class="top-bar-button">
             <i class="fas fa-arrow-right-from-bracket"></i>
             Sign out
           </button>
-        </header>
+        </div>
+      </div>
 
-        <div id="modules-grid" class="modules-grid"></div>
-      </section>
+      <!-- Main Content Area -->
+      <div class="dashboard-main">
+        <!-- Workspace Details Card (Center) -->
+        <div class="workspace-card">
+          <div class="workspace-card-header">
+            <div class="workspace-card-title">
+              <h2 id="company-name-card">Workspace</h2>
+              <p id="user-email">user@example.com</p>
+            </div>
+          </div>
+          <dl class="workspace-card-details">
+            <div>
+              <dt>Plan</dt>
+              <dd id="plan">starter</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd id="status">active</dd>
+            </div>
+          </dl>
+          <div class="workspace-card-footer">
+            <p id="powered-by">Powered by Workcosmo</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Dock -->
+      <div class="dashboard-dock">
+        <div id="modules-dock" class="modules-dock"></div>
+      </div>
     </section>
   </main>
 
