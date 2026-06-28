@@ -71,6 +71,10 @@ export function isModuleEnabled(company, moduleKey) {
     const features = Array.isArray(company.features) ? company.features : [];
     return features.includes("recruitModule") || company.status === "active";
   }
+  if (moduleKey === "ai") {
+    const features = Array.isArray(company.features) ? company.features : [];
+    return features.includes("aiModule");
+  }
   return false;
 }
 

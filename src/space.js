@@ -25,16 +25,14 @@ const els = {
   error: document.getElementById("login-error"),
   resetBtn: document.getElementById("reset-password"),
   signOutBtn: document.getElementById("sign-out"),
-  companyName: document.getElementById("company-name"),
   companyNameCard: document.getElementById("company-name-card"),
-  companyId: document.getElementById("company-id"),
-  userName: document.getElementById("user-name"),
   userEmail: document.getElementById("user-email"),
-  userRole: document.getElementById("user-role"),
-  plan: document.getElementById("plan"),
+  greeting: document.getElementById("greeting"),
+  welcomeTitle: document.getElementById("welcome-title"),
   status: document.getElementById("status"),
+  statusStat: document.getElementById("status-stat"),
+  modulesCount: document.getElementById("modules-count"),
   modulesDock: document.getElementById("modules-dock"),
-  poweredBy: document.getElementById("powered-by"),
 };
 
 function setError(message = "") {
@@ -50,6 +48,66 @@ function displayName(user, profile) {
     user?.email?.split("@")[0] ||
     "User"
   );
+}
+
+function greetingForHour(date = new Date()) {
+  const hour = date.getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function formatLabel(value = "") {
+  return value
+    .toString()
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function countEnabledModules(company) {
+  return WORKCOSMO_MODULES.filter(
+    (mod) => isModuleEnabled(company, mod.key) && mod.status === "live",
+  ).length;
+}
+
+async function launchModule(button, moduleKey, cid) {
+  try {
+    button.style.pointerEvents = "none";
+    button.style.opacity = "0.7";
+
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("No active session in Space");
+    }
+
+    const idToken = await user.getIdToken(true);
+    const url = buildModuleUrl(moduleKey, cid, idToken);
+    window.open(url, "_blank");
+    setTimeout(() => {
+      button.style.pointerEvents = "";
+      button.style.opacity = "";
+    }, 1000);
+  } catch (err) {
+    console.error("SSO launch failed:", err);
+    button.style.pointerEvents = "";
+    button.style.opacity = "";
+    window.open(buildModuleUrl(moduleKey, cid), "_blank");
+  }
+}
+
+function bindModuleLaunchers(root, cid) {
+  root.querySelectorAll("[aria-disabled='true']").forEach((button) => {
+    button.addEventListener("click", (event) => event.preventDefault());
+  });
+
+  root.querySelectorAll("[data-launch-module]:not([aria-disabled='true'])").forEach((button) => {
+    button.addEventListener("click", async (event) => {
+      event.preventDefault();
+      const moduleKey = button.getAttribute("data-launch-module");
+      if (!moduleKey) return;
+      await launchModule(button, moduleKey, cid);
+    });
+  });
 }
 
 async function loadUserProfile(user) {
@@ -103,85 +161,41 @@ function renderModules(company) {
       company?.id ||
       "",
   );
+
   els.modulesDock.innerHTML = WORKCOSMO_MODULES.map((mod) => {
     const enabled = isModuleEnabled(company, mod.key);
     const live = enabled && mod.status === "live";
-    const href = live ? buildModuleUrl(mod.key, cid) : "#";
     const disabledClass = live ? "" : " disabled";
     const disabledAttr = live ? "" : ' aria-disabled="true"';
+    const href = live ? buildModuleUrl(mod.key, cid) : "#";
 
     return `
-            <a class="dock-module${disabledClass}" href="${href}"${disabledAttr} data-module="${mod.key}" title="${mod.label}">
-                <i class="fas ${mod.icon}"></i>
-                <span class="dock-module-label">${mod.label}</span>
-            </a>
-        `;
+      <a class="dock-module${disabledClass}" href="${href}"${disabledAttr} data-launch-module="${mod.key}" data-module="${mod.key}" title="${mod.label}">
+        <i class="fas ${mod.icon}"></i>
+        <span class="dock-module-label">${mod.label}</span>
+      </a>
+    `;
   }).join("");
 
-  els.modulesDock.querySelectorAll("[aria-disabled='true']").forEach((button) => {
-    button.addEventListener("click", (event) => event.preventDefault());
-  });
-
-  els.modulesDock.querySelectorAll(".dock-module:not([aria-disabled='true'])").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const moduleKey = button.getAttribute("data-module");
-
-      try {
-        button.style.pointerEvents = "none";
-        button.style.opacity = "0.7";
-
-        const user = auth.currentUser;
-        if (!user) {
-          throw new Error("No active session in Space");
-        }
-
-        // Fetch fresh ID token
-        const idToken = await user.getIdToken(true);
-
-        // Build URL with SSO token query parameter
-        const url = buildModuleUrl(moduleKey, cid, idToken);
-
-        // Open in new tab
-        window.open(url, "_blank");
-        setTimeout(() => {
-          button.style.pointerEvents = "";
-          button.style.opacity = "";
-        }, 1000);
-      } catch (err) {
-        console.error("SSO launch failed:", err);
-        button.style.pointerEvents = "";
-        button.style.opacity = "";
-        // Fallback: open in new tab without SSO token
-        window.open(buildModuleUrl(moduleKey, cid), "_blank");
-      }
-    });
-  });
+  bindModuleLaunchers(els.modulesDock, cid);
 }
 
 function renderDashboard(user, profile, company) {
-  const cid = normalizeClientId(
-    company?.companyId || profile?.companyId || company?.id || "",
-  );
   const companyDisplayName = company?.companyName || company?.name || "Workcosmo Workspace";
-  
-  // Update top bar
-  els.companyName.textContent = companyDisplayName;
-  els.userName.textContent = displayName(user, profile);
-  els.userRole.textContent = profile?.role || "member";
-  
-  // Update workspace card
+  const name = displayName(user, profile);
+  const status = formatLabel(company?.status || "active");
+  const enabledCount = countEnabledModules(company);
+
+  els.greeting.textContent = greetingForHour();
+  els.welcomeTitle.textContent = `Welcome back, ${name.split(" ")[0]}`;
   els.companyNameCard.textContent = companyDisplayName;
-  els.companyId.textContent = cid || "workspace";
   els.userEmail.textContent = user.email || profile?.email || "";
-  els.plan.textContent = company?.plan || "starter";
-  els.status.textContent = company?.status || "active";
-  els.poweredBy.textContent = "Powered by Workcosmo";
-  
-  // Render modules in dock
+  els.status.textContent = status;
+  els.statusStat.textContent = status;
+  els.modulesCount.textContent = String(enabledCount);
+
   renderModules(company);
-  
-  // Show dashboard, hide login
+
   els.loginView.classList.add("hidden");
   els.dashboardView.classList.remove("hidden");
 }

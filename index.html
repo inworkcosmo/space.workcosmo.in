@@ -56,55 +56,56 @@
     </section>
 
     <section id="dashboard-view" class="dashboard hidden">
-      <!-- Top Bar -->
       <div class="dashboard-top-bar">
-        <div class="workspace-top-info">
-          <h1 id="company-name">Workspace</h1>
-          <p id="company-id">workspace-id</p>
-        </div>
-        <div class="user-top-info">
-          <div>
-            <small>User</small>
-            <span id="user-name">User</span>
-          </div>
-          <div>
-            <small>Role</small>
-            <span id="user-role">member</span>
-          </div>
-          <button id="sign-out" type="button" class="top-bar-button">
-            <i class="fas fa-arrow-right-from-bracket"></i>
-            Sign out
-          </button>
-        </div>
+        <a href="https://workcosmo.in" class="brand-lockup compact dashboard-brand">
+          <img src="https://workcosmo.in/src/images/ngu_logo.png" alt="Workcosmo" />
+          <span>Workcosmo Space</span>
+        </a>
+        <button id="sign-out" type="button" class="top-bar-button">
+          <i class="fas fa-arrow-right-from-bracket"></i>
+          Sign out
+        </button>
       </div>
 
-      <!-- Main Content Area -->
       <div class="dashboard-main">
-        <!-- Workspace Details Card (Center) -->
-        <div class="workspace-card">
-          <div class="workspace-card-header">
-            <div class="workspace-card-title">
-              <h2 id="company-name-card">Workspace</h2>
-              <p id="user-email">user@example.com</p>
+        <div class="dashboard-scroll">
+          <header class="dashboard-hero">
+            <div class="hero-copy">
+              <p class="eyebrow hero-eyebrow" id="greeting">Good morning</p>
+              <h2 id="welcome-title">Welcome back</h2>
+              <p class="hero-subtitle" id="user-email">user@example.com</p>
             </div>
-          </div>
-          <dl class="workspace-card-details">
-            <div>
-              <dt>Plan</dt>
-              <dd id="plan">starter</dd>
+            <div class="hero-badge">
+              <span class="status-pill" id="status">active</span>
             </div>
-            <div>
-              <dt>Status</dt>
-              <dd id="status">active</dd>
-            </div>
-          </dl>
-          <div class="workspace-card-footer">
-            <p id="powered-by">Powered by Workcosmo</p>
-          </div>
+          </header>
+
+          <section class="dashboard-stats" aria-label="Workspace overview">
+            <article class="stat-card stat-card--blue">
+              <div class="stat-icon"><i class="fas fa-building"></i></div>
+              <div>
+                <p class="stat-label">Workspace</p>
+                <p class="stat-value" id="company-name-card">Workspace</p>
+              </div>
+            </article>
+            <article class="stat-card stat-card--green">
+              <div class="stat-icon"><i class="fas fa-circle-check"></i></div>
+              <div>
+                <p class="stat-label">Status</p>
+                <p class="stat-value" id="status-stat">active</p>
+              </div>
+            </article>
+            <article class="stat-card stat-card--orange">
+              <div class="stat-icon"><i class="fas fa-puzzle-piece"></i></div>
+              <div>
+                <p class="stat-label">Active Modules</p>
+                <p class="stat-value" id="modules-count">0</p>
+              </div>
+            </article>
+          </section>
         </div>
       </div>
 
-      <!-- Bottom Dock -->
       <div class="dashboard-dock">
         <div id="modules-dock" class="modules-dock"></div>
       </div>
