@@ -94,6 +94,8 @@ export function buildModuleUrl(moduleKey, companyId, ssoToken = "") {
       url = `http://localhost:8093/index.html?companyId=${cid}`;
     } else if (moduleKey === "perform") {
       url = `http://localhost:8094/index.html?companyId=${cid}`;
+    } else if (moduleKey === "ai") {
+      url = `http://localhost:8095/index.html?companyId=${cid}`;
     } else {
       return "#";
     }
