@@ -103,6 +103,69 @@
               </div>
             </article>
           </section>
+
+          <!-- Scrolled Down Workspace Area -->
+          <div class="workspace-area">
+            <h2 class="workspace-section-title"><i class="fas fa-cubes"></i> Company Workspace</h2>
+            
+            <div class="workspace-grid">
+              <!-- Real-time Group Chat -->
+              <div class="workspace-card group-chat-card">
+                <div class="card-header">
+                  <h3><i class="fas fa-comments"></i> Team Chat</h3>
+                  <span class="online-indicator"><i class="fas fa-circle"></i> Live Chat</span>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                  <!-- Messages loaded dynamically -->
+                </div>
+                <form id="chat-form" class="chat-form">
+                  <input type="text" id="chat-input" placeholder="Type a message to the team..." required autocomplete="off">
+                  <button type="submit" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+                </form>
+              </div>
+
+              <!-- AI Support & Raise Ticket -->
+              <div class="workspace-card support-card">
+                <div class="card-header">
+                  <h3><i class="fas fa-life-ring"></i> Help & Support</h3>
+                </div>
+                
+                <!-- AI Support Assistant Tab -->
+                <div id="support-ai-view" class="support-content">
+                  <div class="support-ai-chat" id="support-ai-messages">
+                    <div class="support-msg assistant">
+                      <p>Hello! I'm your Workcosmo Support Guide. How can I help you today? You can ask me how to raise tickets or resolve issues.</p>
+                    </div>
+                  </div>
+                  <div class="support-ai-composer">
+                    <input type="text" id="support-ai-input" placeholder="Ask AI support..." autocomplete="off">
+                    <button type="button" id="support-ai-send" aria-label="Send to AI"><i class="fas fa-arrow-right"></i></button>
+                  </div>
+                  <div class="support-actions">
+                    <button type="button" class="btn-ticket-trigger" id="btn-ticket-trigger">
+                      <i class="fas fa-ticket"></i> Need Human Support? Raise a Ticket
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Ticket Form Tab (Hidden by default) -->
+                <form id="ticket-form" class="support-content hidden">
+                  <div class="form-group">
+                    <label for="ticket-subject">Subject</label>
+                    <input type="text" id="ticket-subject" placeholder="What is the issue about?" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="ticket-desc">Description</label>
+                    <textarea id="ticket-desc" rows="4" placeholder="Please describe the issue in detail..." required></textarea>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn-primary">Submit Ticket</button>
+                    <button type="button" class="btn-secondary" id="btn-cancel-ticket">Cancel</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

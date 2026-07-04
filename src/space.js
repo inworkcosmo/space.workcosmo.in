@@ -14,6 +14,15 @@ import {
   isModuleEnabled,
   normalizeClientId,
 } from "./modules.js";
+import {
+  addDoc,
+  collection,
+  query,
+  orderBy,
+  limit,
+  onSnapshot,
+  serverTimestamp,
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const els = {
   loginView: document.getElementById("login-view"),
@@ -235,6 +244,7 @@ async function handleSignedIn(user) {
 
   sessionStorage.setItem("tenant_client_id", profileCompanyId);
   renderDashboard(user, profile, company);
+  initWorkspace(user, profile, company);
 }
 
 els.loginForm.addEventListener("submit", async (event) => {
@@ -318,5 +328,265 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     els.dashboardView.classList.add("hidden");
     els.loginView.classList.remove("hidden");
+    teardownWorkspace();
   }
 });
+
+/* ─────────────────────────────────────────────
+   Workspace Features
+───────────────────────────────────────────── */
+
+let _chatUnsub = null;
+let _currentProfile = null;
+let _currentCompanyId = null;
+
+function teardownWorkspace() {
+  if (_chatUnsub) { _chatUnsub(); _chatUnsub = null; }
+}
+
+function formatTime(ts) {
+  if (!ts) return "";
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+/* ── Group Chat ── */
+
+function initGroupChat(companyId, currentUserId) {
+  const messagesEl = document.getElementById("chat-messages");
+  const chatForm   = document.getElementById("chat-form");
+  const chatInput  = document.getElementById("chat-input");
+  if (!messagesEl || !chatForm) return;
+
+  // Show empty state initially
+  messagesEl.innerHTML = `
+    <div class="chat-empty">
+      <i class="fas fa-comments"></i>
+      <p>No messages yet. Say hello to your team!</p>
+    </div>`;
+
+  const chatRef = collection(db, "workspaceChats");
+  const q = query(
+    chatRef,
+    orderBy("createdAt", "asc"),
+    limit(80)
+  );
+
+  _chatUnsub = onSnapshot(q, (snapshot) => {
+    const companyMsgs = snapshot.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(m => m.companyId === companyId);
+
+    if (companyMsgs.length === 0) {
+      messagesEl.innerHTML = `
+        <div class="chat-empty">
+          <i class="fas fa-comments"></i>
+          <p>No messages yet. Say hello to your team!</p>
+        </div>`;
+      return;
+    }
+
+    messagesEl.innerHTML = companyMsgs.map(msg => {
+      const isOwn = msg.senderId === currentUserId;
+      const senderLabel = isOwn ? "You" : (msg.senderName || msg.senderEmail || "Teammate");
+      return `
+        <div class="chat-msg ${isOwn ? "own" : ""}">
+          <span class="chat-msg-meta">${senderLabel} · ${formatTime(msg.createdAt)}</span>
+          <div class="chat-bubble">${escapeHtml(msg.text)}</div>
+        </div>`;
+    }).join("");
+
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  });
+
+  chatForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = chatInput.value.trim();
+    if (!text) return;
+    chatInput.value = "";
+    chatInput.disabled = true;
+
+    try {
+      await addDoc(collection(db, "workspaceChats"), {
+        companyId,
+        senderId:    currentUserId,
+        senderName:  _currentProfile?.name || _currentProfile?.displayName || "",
+        senderEmail: _currentProfile?.email || "",
+        text,
+        createdAt: serverTimestamp(),
+      });
+    } catch (err) {
+      console.error("Chat send failed:", err);
+    } finally {
+      chatInput.disabled = false;
+      chatInput.focus();
+    }
+  });
+}
+
+function escapeHtml(str = "") {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/* ── AI Support Assistant ── */
+
+const SUPPORT_KNOWLEDGE = [
+  { keywords: ["reset", "password", "forgot", "login", "signin", "sign in"],
+    answer: "To reset your password, click 'Send password reset' on the login screen and enter your email. You'll receive a reset link within a few minutes." },
+  { keywords: ["module", "launch", "product", "hire", "core", "perform"],
+    answer: "To launch a module, look for the product dock at the bottom of your dashboard. Click any active module icon to open it in a new tab." },
+  { keywords: ["account", "inactive", "blocked", "provisioned", "not active"],
+    answer: "If your account shows as inactive, please contact your company administrator to have your account activated in the system." },
+  { keywords: ["client id", "company id", "tenant", "workspace id"],
+    answer: "Your Client ID is provided by your company administrator. It is the unique identifier for your company's Workcosmo workspace." },
+  { keywords: ["billing", "payment", "invoice", "subscription"],
+    answer: "Billing is managed by your Workcosmo administrator. For billing enquiries, please contact your account manager or raise a support ticket." },
+  { keywords: ["slow", "loading", "performance", "lag", "freeze"],
+    answer: "If the app is slow, try clearing your browser cache, disabling extensions, or switching to a different browser. If the issue persists, raise a support ticket." },
+  { keywords: ["user", "invite", "add user", "add member"],
+    answer: "User management is done through the access.workcosmo.in admin panel. Ask your company administrator to invite or manage users." },
+  { keywords: ["error", "bug", "broken", "not working", "issue"],
+    answer: "Sorry to hear that! Could you describe the issue in more detail? If it can't be resolved here, you can raise a support ticket and our team will investigate." },
+];
+
+function getSupportAnswer(question) {
+  const q = question.toLowerCase();
+  for (const entry of SUPPORT_KNOWLEDGE) {
+    if (entry.keywords.some(k => q.includes(k))) {
+      return entry.answer;
+    }
+  }
+  return null;
+}
+
+function appendSupportMsg(role, text) {
+  const chat = document.getElementById("support-ai-messages");
+  if (!chat) return;
+  const div = document.createElement("div");
+  div.className = `support-msg ${role}`;
+  div.innerHTML = `<p>${escapeHtml(text)}</p>`;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+  return div;
+}
+
+function initSupportAgent() {
+  const sendBtn   = document.getElementById("support-ai-send");
+  const input     = document.getElementById("support-ai-input");
+  const ticketBtn = document.getElementById("btn-ticket-trigger");
+  const cancelBtn = document.getElementById("btn-cancel-ticket");
+  const aiView    = document.getElementById("support-ai-view");
+  const ticketForm = document.getElementById("ticket-form");
+  if (!sendBtn || !input) return;
+
+  async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = "";
+
+    appendSupportMsg("user", text);
+
+    // Thinking indicator
+    const thinkingDiv = appendSupportMsg("thinking", "Workcosmo Support is thinking…");
+
+    await new Promise(r => setTimeout(r, 700));
+
+    const answer = getSupportAnswer(text);
+    if (thinkingDiv) thinkingDiv.remove();
+
+    if (answer) {
+      appendSupportMsg("assistant", answer);
+      appendSupportMsg("assistant", "Did that help? If not, feel free to raise a support ticket — our team will assist you directly.");
+    } else {
+      appendSupportMsg("assistant", "I'm not sure about that one. Would you like to raise a support ticket so our team can help you directly?");
+    }
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
+
+  // Show ticket form
+  if (ticketBtn) {
+    ticketBtn.addEventListener("click", () => {
+      aiView?.classList.add("hidden");
+      ticketForm?.classList.remove("hidden");
+    });
+  }
+
+  // Cancel ticket
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      ticketForm?.classList.add("hidden");
+      aiView?.classList.remove("hidden");
+    });
+  }
+}
+
+/* ── Ticket Submission ── */
+
+function initTicketForm(profile, companyId) {
+  const form = document.getElementById("ticket-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const subject = document.getElementById("ticket-subject")?.value.trim();
+    const desc    = document.getElementById("ticket-desc")?.value.trim();
+    if (!subject || !desc) return;
+
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting…";
+
+    try {
+      await addDoc(collection(db, "supportTickets"), {
+        companyId,
+        subject,
+        description: desc,
+        status: "Open",
+        submittedBy: {
+          uid:   auth.currentUser?.uid || "",
+          name:  profile?.name || profile?.displayName || "",
+          email: profile?.email || auth.currentUser?.email || "",
+        },
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      // Show success state
+      form.innerHTML = `
+        <div class="ticket-success">
+          <i class="fas fa-circle-check"></i>
+          <h4>Ticket Submitted!</h4>
+          <p>Your ticket has been received. Our support team will follow up with you shortly via email.</p>
+          <button type="button" class="btn-secondary" id="btn-new-ticket">Ask Another Question</button>
+        </div>`;
+
+      document.getElementById("btn-new-ticket")?.addEventListener("click", () => {
+        window.location.reload();
+      });
+
+    } catch (err) {
+      console.error("Ticket submission failed:", err);
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Ticket";
+      alert("Failed to submit ticket. Please try again.");
+    }
+  });
+}
+
+/* ── Init Workspace (called after login) ── */
+
+function initWorkspace(user, profile, company) {
+  _currentProfile   = profile;
+  _currentCompanyId = company.id || company.companyId;
+
+  initGroupChat(_currentCompanyId, user.uid);
+  initSupportAgent();
+  initTicketForm(profile, _currentCompanyId);
+}
