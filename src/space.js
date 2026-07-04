@@ -480,8 +480,8 @@ function initSupportAgent() {
   const input     = document.getElementById("support-ai-input");
   const ticketBtn = document.getElementById("btn-ticket-trigger");
   const cancelBtn = document.getElementById("btn-cancel-ticket");
-  const aiView    = document.getElementById("support-ai-view");
-  const ticketForm = document.getElementById("ticket-form");
+  const ticketFormOverlay = document.getElementById("support-ticket-form");
+  const composer = document.getElementById("support-composer");
   if (!sendBtn || !input) return;
 
   async function sendMessage() {
@@ -511,18 +511,18 @@ function initSupportAgent() {
   input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
 
   // Show ticket form
-  if (ticketBtn) {
+  if (ticketBtn && ticketFormOverlay && composer) {
     ticketBtn.addEventListener("click", () => {
-      aiView?.classList.add("hidden");
-      ticketForm?.classList.remove("hidden");
+      ticketFormOverlay.classList.remove("hidden");
+      composer.classList.add("hidden");
     });
   }
 
   // Cancel ticket
-  if (cancelBtn) {
+  if (cancelBtn && ticketFormOverlay && composer) {
     cancelBtn.addEventListener("click", () => {
-      ticketForm?.classList.add("hidden");
-      aiView?.classList.remove("hidden");
+      ticketFormOverlay.classList.add("hidden");
+      composer.classList.remove("hidden");
     });
   }
 }
@@ -559,15 +559,16 @@ function initTicketForm(profile, companyId) {
       });
 
       // Show success state
-      form.innerHTML = `
+      const overlay = document.getElementById("support-ticket-form");
+      overlay.innerHTML = `
         <div class="ticket-success">
           <i class="fas fa-circle-check"></i>
-          <h4>Ticket Submitted!</h4>
-          <p>Your ticket has been received. Our support team will follow up with you shortly via email.</p>
-          <button type="button" class="btn-secondary" id="btn-new-ticket">Ask Another Question</button>
+          <h5>Ticket Submitted!</h5>
+          <p>Your ticket has been received. Our support team will follow up via email.</p>
+          <button type="button" class="btn-secondary" id="btn-close-success">Done</button>
         </div>`;
 
-      document.getElementById("btn-new-ticket")?.addEventListener("click", () => {
+      document.getElementById("btn-close-success")?.addEventListener("click", () => {
         window.location.reload();
       });
 
@@ -580,6 +581,26 @@ function initTicketForm(profile, companyId) {
   });
 }
 
+/* ── Contact Channel Switching ── */
+
+function initChannelSwitcher() {
+  const contacts = document.querySelectorAll(".contact-item");
+  contacts.forEach(contact => {
+    contact.addEventListener("click", () => {
+      // Toggle active contact
+      contacts.forEach(c => c.classList.remove("active"));
+      contact.classList.add("active");
+
+      // Toggle active pane
+      const channel = contact.dataset.channel;
+      document.querySelectorAll(".channel-pane").forEach(pane => {
+        pane.classList.remove("active");
+      });
+      document.getElementById(`channel-${channel}`)?.classList.add("active");
+    });
+  });
+}
+
 /* ── Init Workspace (called after login) ── */
 
 function initWorkspace(user, profile, company) {
@@ -589,4 +610,5 @@ function initWorkspace(user, profile, company) {
   initGroupChat(_currentCompanyId, user.uid);
   initSupportAgent();
   initTicketForm(profile, _currentCompanyId);
+  initChannelSwitcher();
 }

@@ -104,65 +104,89 @@
             </article>
           </section>
 
-          <!-- Scrolled Down Workspace Area -->
-          <div class="workspace-area">
-            <h2 class="workspace-section-title"><i class="fas fa-cubes"></i> Company Workspace</h2>
-            
-            <div class="workspace-grid">
-              <!-- Real-time Group Chat -->
-              <div class="workspace-card group-chat-card">
-                <div class="card-header">
-                  <h3><i class="fas fa-comments"></i> Team Chat</h3>
-                  <span class="online-indicator"><i class="fas fa-circle"></i> Live Chat</span>
+          <!-- Scrolled Down: Teams-style Messenger -->
+          <div class="messenger-area">
+            <div class="messenger-shell">
+              <!-- Sidebar: Contact List -->
+              <aside class="messenger-sidebar">
+                <div class="sidebar-header">
+                  <h3><i class="fas fa-message"></i> Messages</h3>
                 </div>
-                <div id="chat-messages" class="chat-messages">
-                  <!-- Messages loaded dynamically -->
+                <div class="sidebar-contacts" id="sidebar-contacts">
+                  <button class="contact-item active" data-channel="team">
+                    <div class="contact-avatar team-avatar"><i class="fas fa-users"></i></div>
+                    <div class="contact-info">
+                      <span class="contact-name">Team Chat</span>
+                      <span class="contact-preview">Company group conversation</span>
+                    </div>
+                    <span class="online-dot live"></span>
+                  </button>
+                  <button class="contact-item" data-channel="support">
+                    <div class="contact-avatar support-avatar"><i class="fas fa-headset"></i></div>
+                    <div class="contact-info">
+                      <span class="contact-name">Workcosmo Support</span>
+                      <span class="contact-preview">AI help & raise tickets</span>
+                    </div>
+                    <span class="support-badge">AI</span>
+                  </button>
                 </div>
-                <form id="chat-form" class="chat-form">
-                  <input type="text" id="chat-input" placeholder="Type a message to the team..." required autocomplete="off">
-                  <button type="submit" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
-                </form>
-              </div>
+              </aside>
 
-              <!-- AI Support & Raise Ticket -->
-              <div class="workspace-card support-card">
-                <div class="card-header">
-                  <h3><i class="fas fa-life-ring"></i> Help & Support</h3>
-                </div>
-                
-                <!-- AI Support Assistant Tab -->
-                <div id="support-ai-view" class="support-content">
-                  <div class="support-ai-chat" id="support-ai-messages">
-                    <div class="support-msg assistant">
-                      <p>Hello! I'm your Workcosmo Support Guide. How can I help you today? You can ask me how to raise tickets or resolve issues.</p>
+              <!-- Chat Pane -->
+              <div class="messenger-chat">
+                <!-- Team Chat Channel -->
+                <div id="channel-team" class="channel-pane active">
+                  <div class="chat-pane-header">
+                    <div class="chat-pane-title">
+                      <div class="contact-avatar team-avatar sm"><i class="fas fa-users"></i></div>
+                      <div>
+                        <h4>Team Chat</h4>
+                        <span class="chat-pane-status"><i class="fas fa-circle"></i> Live</span>
+                      </div>
                     </div>
                   </div>
-                  <div class="support-ai-composer">
-                    <input type="text" id="support-ai-input" placeholder="Ask AI support..." autocomplete="off">
-                    <button type="button" id="support-ai-send" aria-label="Send to AI"><i class="fas fa-arrow-right"></i></button>
+                  <div id="chat-messages" class="chat-messages">
+                    <!-- Messages loaded dynamically -->
                   </div>
-                  <div class="support-actions">
-                    <button type="button" class="btn-ticket-trigger" id="btn-ticket-trigger">
-                      <i class="fas fa-ticket"></i> Need Human Support? Raise a Ticket
-                    </button>
-                  </div>
+                  <form id="chat-form" class="chat-composer">
+                    <input type="text" id="chat-input" placeholder="Type a message…" required autocomplete="off">
+                    <button type="submit" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+                  </form>
                 </div>
 
-                <!-- Ticket Form Tab (Hidden by default) -->
-                <form id="ticket-form" class="support-content hidden">
-                  <div class="form-group">
-                    <label for="ticket-subject">Subject</label>
-                    <input type="text" id="ticket-subject" placeholder="What is the issue about?" required>
+                <!-- Support Channel -->
+                <div id="channel-support" class="channel-pane">
+                  <div class="chat-pane-header">
+                    <div class="chat-pane-title">
+                      <div class="contact-avatar support-avatar sm"><i class="fas fa-headset"></i></div>
+                      <div>
+                        <h4>Workcosmo Support</h4>
+                        <span class="chat-pane-status support-label"><i class="fas fa-robot"></i> AI-powered</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="form-group">
-                    <label for="ticket-desc">Description</label>
-                    <textarea id="ticket-desc" rows="4" placeholder="Please describe the issue in detail..." required></textarea>
+                  <div id="support-ai-messages" class="chat-messages">
+                    <div class="support-msg assistant">
+                      <p>👋 Hello! I'm your Workcosmo Support Guide. Ask me anything — password resets, module access, billing, or any issue. If I can't resolve it, I'll help you raise a ticket to our team.</p>
+                    </div>
                   </div>
-                  <div class="form-actions">
-                    <button type="submit" class="btn-primary">Submit Ticket</button>
-                    <button type="button" class="btn-secondary" id="btn-cancel-ticket">Cancel</button>
+                  <div id="support-ticket-form" class="ticket-inline-form hidden">
+                    <div class="ticket-form-header">
+                      <h5><i class="fas fa-ticket"></i> Raise a Support Ticket</h5>
+                      <button type="button" id="btn-cancel-ticket" class="ticket-close"><i class="fas fa-xmark"></i></button>
+                    </div>
+                    <form id="ticket-form">
+                      <input type="text" id="ticket-subject" placeholder="Subject" required>
+                      <textarea id="ticket-desc" rows="3" placeholder="Describe the issue…" required></textarea>
+                      <button type="submit" class="btn-primary">Submit Ticket</button>
+                    </form>
                   </div>
-                </form>
+                  <div class="chat-composer support-composer" id="support-composer">
+                    <input type="text" id="support-ai-input" placeholder="Ask support…" autocomplete="off">
+                    <button type="button" id="btn-ticket-trigger" class="composer-ticket-btn" title="Raise a ticket"><i class="fas fa-ticket"></i></button>
+                    <button type="button" id="support-ai-send" aria-label="Send to AI"><i class="fas fa-paper-plane"></i></button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
