@@ -439,28 +439,35 @@ function escapeHtml(str = "") {
 /* ── AI Support Assistant ── */
 
 const SUPPORT_KNOWLEDGE = [
-  { keywords: ["reset", "password", "forgot", "login", "signin", "sign in"],
-    answer: "To reset your password, click 'Send password reset' on the login screen and enter your email. You'll receive a reset link within a few minutes." },
-  { keywords: ["module", "launch", "product", "hire", "core", "perform"],
-    answer: "To launch a module, look for the product dock at the bottom of your dashboard. Click any active module icon to open it in a new tab." },
-  { keywords: ["account", "inactive", "blocked", "provisioned", "not active"],
-    answer: "If your account shows as inactive, please contact your company administrator to have your account activated in the system." },
-  { keywords: ["client id", "company id", "tenant", "workspace id"],
-    answer: "Your Client ID is provided by your company administrator. It is the unique identifier for your company's Workcosmo workspace." },
-  { keywords: ["billing", "payment", "invoice", "subscription"],
-    answer: "Billing is managed by your Workcosmo administrator. For billing enquiries, please contact your account manager or raise a support ticket." },
-  { keywords: ["slow", "loading", "performance", "lag", "freeze"],
-    answer: "If the app is slow, try clearing your browser cache, disabling extensions, or switching to a different browser. If the issue persists, raise a support ticket." },
-  { keywords: ["user", "invite", "add user", "add member"],
-    answer: "User management is done through the access.workcosmo.in admin panel. Ask your company administrator to invite or manage users." },
-  { keywords: ["error", "bug", "broken", "not working", "issue"],
-    answer: "Sorry to hear that! Could you describe the issue in more detail? If it can't be resolved here, you can raise a support ticket and our team will investigate." },
+  { keywords: ["hi", "hello", "hey", "greetings", "good morning", "good afternoon", "good evening", "howdy", "sup"],
+    answer: "👋 Hello! I'm your Workcosmo AI Support Assistant. I can help answer common questions about billing, client IDs, module launches, user invites, password resets, and performance issues. What can I help you with today?" },
+  { keywords: ["reset", "password", "forgot", "login", "signin", "sign in", "credential", "lockout"],
+    answer: "🔑 To reset your password, click the 'Send password reset' option on the login screen, enter your email, and follow the link sent to your inbox." },
+  { keywords: ["module", "launch", "product", "hire", "core", "perform", "app", "dashboard"],
+    answer: "🚀 You can launch modules (Hire, Core, Perform, AI) by clicking their corresponding active icons in the floating dock at the bottom of your dashboard." },
+  { keywords: ["account", "inactive", "blocked", "provisioned", "not active", "disable", "suspend"],
+    answer: "⚠️ If your account status is inactive or suspended, please request your workspace administrator to reactivate your profile in the Admin Console." },
+  { keywords: ["client id", "company id", "tenant", "workspace id", "slug"],
+    answer: "🆔 Your Client ID is a unique workspace identifier assigned to your company. If you don't know it, check your onboarding email or ask your system administrator." },
+  { keywords: ["billing", "payment", "invoice", "subscription", "price", "plan", "upgrade", "pay"],
+    answer: "💳 Billing settings, subscriptions, and upgrades are managed by company owners. You can also contact our billing desk directly by raising a ticket here." },
+  { keywords: ["slow", "loading", "performance", "lag", "freeze", "crash", "buffering"],
+    answer: "⚡ For speed issues, try refreshing your browser, clearing temporary cookies, or using Google Chrome. If it persists, let us know by raising a support ticket." },
+  { keywords: ["user", "invite", "add user", "add member", "create user", "new user", "provision"],
+    answer: "👤 System administrators can invite and manage workspace users directly from the access.workcosmo.in portal." },
+  { keywords: ["error", "bug", "broken", "not working", "issue", "fault", "defect"],
+    answer: "🛠️ Sorry to hear that! Please describe the error in detail. If we can't resolve it here, you can click the ticket icon (🎫) inside the message input bar to submit an investigation request." },
+  { keywords: ["help", "ticket", "human", "agent", "support", "raise", "contact", "support ticket"],
+    answer: "🎫 You can raise a support ticket anytime by clicking the ticket icon (🎫) in the support chat composer. Fill out the subject and details, and our team will get right on it!" },
+  { keywords: ["thanks", "thank you", "thanks!", "awesome", "perfect", "ok", "okay"],
+    answer: "😊 You're welcome! Let me know if you need help with anything else." }
 ];
 
 function getSupportAnswer(question) {
-  const q = question.toLowerCase();
+  const q = question.toLowerCase().trim();
+  if (!q) return null;
   for (const entry of SUPPORT_KNOWLEDGE) {
-    if (entry.keywords.some(k => q.includes(k))) {
+    if (entry.keywords.some(k => q.includes(k) || k.includes(q))) {
       return entry.answer;
     }
   }
