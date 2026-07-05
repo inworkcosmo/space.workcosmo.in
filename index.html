@@ -110,92 +110,7 @@
             </article>
           </section>
 
-          <!-- Scrolled Down: Teams-style Messenger -->
-          <div class="messenger-area">
-            <div class="messenger-shell">
-              <!-- Sidebar: Contact List -->
-              <aside class="messenger-sidebar">
-                <div class="sidebar-header">
-                  <h3><i class="fas fa-message"></i> Messages</h3>
-                </div>
-                <div class="sidebar-contacts" id="sidebar-contacts">
-                  <button class="contact-item active" data-channel="team">
-                    <div class="contact-avatar team-avatar"><i class="fas fa-users"></i></div>
-                    <div class="contact-info">
-                      <span class="contact-name">Team Chat</span>
-                      <span class="contact-preview">Company group conversation</span>
-                    </div>
-                    <span class="online-dot live"></span>
-                  </button>
-                  <button class="contact-item" data-channel="support">
-                    <div class="contact-avatar support-avatar"><i class="fas fa-headset"></i></div>
-                    <div class="contact-info">
-                      <span class="contact-name">Workcosmo Support</span>
-                      <span class="contact-preview">AI help & raise tickets</span>
-                    </div>
-                    <span class="support-badge">AI</span>
-                  </button>
-                </div>
-              </aside>
-
-              <!-- Chat Pane -->
-              <div class="messenger-chat">
-                <!-- Team Chat Channel -->
-                <div id="channel-team" class="channel-pane active">
-                  <div class="chat-pane-header">
-                    <div class="chat-pane-title">
-                      <div class="contact-avatar team-avatar sm"><i class="fas fa-users"></i></div>
-                      <div>
-                        <h4>Team Chat</h4>
-                        <span class="chat-pane-status"><i class="fas fa-circle"></i> Live</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div id="chat-messages" class="chat-messages">
-                    <!-- Messages loaded dynamically -->
-                  </div>
-                  <form id="chat-form" class="chat-composer">
-                    <input type="text" id="chat-input" placeholder="Type a message…" required autocomplete="off">
-                    <button type="submit" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
-                  </form>
-                </div>
-
-                <!-- Support Channel -->
-                <div id="channel-support" class="channel-pane">
-                  <div class="chat-pane-header">
-                    <div class="chat-pane-title">
-                      <div class="contact-avatar support-avatar sm"><i class="fas fa-headset"></i></div>
-                      <div>
-                        <h4>Workcosmo Support</h4>
-                        <span class="chat-pane-status support-label"><i class="fas fa-robot"></i> AI-powered</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div id="support-ai-messages" class="chat-messages">
-                    <div class="support-msg assistant">
-                      <p>👋 Hello! I'm your Workcosmo Support Guide. Ask me anything — password resets, module access, billing, or any issue. If I can't resolve it, I'll help you raise a ticket to our team.</p>
-                    </div>
-                  </div>
-                  <div id="support-ticket-form" class="ticket-inline-form hidden">
-                    <div class="ticket-form-header">
-                      <h5><i class="fas fa-ticket"></i> Raise a Support Ticket</h5>
-                      <button type="button" id="btn-cancel-ticket" class="ticket-close"><i class="fas fa-xmark"></i></button>
-                    </div>
-                    <form id="ticket-form">
-                      <input type="text" id="ticket-subject" placeholder="Subject" required>
-                      <textarea id="ticket-desc" rows="3" placeholder="Describe the issue…" required></textarea>
-                      <button type="submit" class="btn-primary">Submit Ticket</button>
-                    </form>
-                  </div>
-                  <div class="chat-composer support-composer" id="support-composer">
-                    <input type="text" id="support-ai-input" placeholder="Ask support…" autocomplete="off">
-                    <button type="button" id="btn-ticket-trigger" class="composer-ticket-btn" title="Raise a ticket"><i class="fas fa-ticket"></i></button>
-                    <button type="button" id="support-ai-send" aria-label="Send to AI"><i class="fas fa-paper-plane"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
 
@@ -203,6 +118,101 @@
         <div id="modules-dock" class="modules-dock"></div>
       </div>
     </section>
+
+    <!-- Fullscreen Chat Modal Overlay -->
+    <div id="chat-modal" class="chat-modal-overlay hidden">
+      <div class="chat-modal-container animate-scale-up">
+        <button id="close-chat-btn" class="chat-modal-close-btn" aria-label="Close Chat">
+          <i class="fas fa-xmark"></i>
+        </button>
+        
+        <div class="messenger-area">
+          <div class="messenger-shell">
+            <!-- Sidebar: Contact List -->
+            <aside class="messenger-sidebar">
+              <div class="sidebar-header">
+                <h3><i class="fas fa-message"></i> Messages</h3>
+              </div>
+              <div class="sidebar-contacts" id="sidebar-contacts">
+                <button class="contact-item active" data-channel="team">
+                  <div class="contact-avatar team-avatar"><i class="fas fa-users"></i></div>
+                  <div class="contact-info">
+                    <span class="contact-name">Team Chat</span>
+                    <span class="contact-preview">Company group conversation</span>
+                  </div>
+                  <span class="online-dot live"></span>
+                </button>
+                <button class="contact-item" data-channel="support">
+                  <div class="contact-avatar support-avatar"><i class="fas fa-headset"></i></div>
+                  <div class="contact-info">
+                    <span class="contact-name">Workcosmo Support</span>
+                    <span class="contact-preview">AI help & raise tickets</span>
+                  </div>
+                  <span class="support-badge">AI</span>
+                </button>
+              </div>
+            </aside>
+
+            <!-- Chat Pane -->
+            <div class="messenger-chat">
+              <!-- Team Chat Channel -->
+              <div id="channel-team" class="channel-pane active">
+                <div class="chat-pane-header">
+                  <div class="chat-pane-title">
+                    <div class="contact-avatar team-avatar sm"><i class="fas fa-users"></i></div>
+                    <div>
+                      <h4>Team Chat</h4>
+                      <span class="chat-pane-status"><i class="fas fa-circle"></i> Live</span>
+                    </div>
+                  </div>
+                </div>
+                <div id="chat-messages" class="chat-messages">
+                  <!-- Messages loaded dynamically -->
+                </div>
+                <form id="chat-form" class="chat-composer">
+                  <input type="text" id="chat-input" placeholder="Type a message…" required autocomplete="off">
+                  <button type="submit" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
+                </form>
+              </div>
+
+              <!-- Support Channel -->
+              <div id="channel-support" class="channel-pane">
+                <div class="chat-pane-header">
+                  <div class="chat-pane-title">
+                    <div class="contact-avatar support-avatar sm"><i class="fas fa-headset"></i></div>
+                    <div>
+                      <h4>Workcosmo Support</h4>
+                      <span class="chat-pane-status support-label"><i class="fas fa-robot"></i> AI-powered</span>
+                    </div>
+                  </div>
+                </div>
+                <div id="support-ai-messages" class="chat-messages">
+                  <div class="support-msg assistant">
+                    <p>👋 Hello! I'm your Workcosmo Support Guide. Ask me anything — password resets, module access, billing, or any issue. If I can't resolve it, I'll help you raise a ticket to our team.</p>
+                  </div>
+                </div>
+                <div id="support-ticket-form" class="ticket-inline-form hidden">
+                  <div class="ticket-form-header">
+                    <h5><i class="fas fa-ticket"></i> Raise a Support Ticket</h5>
+                    <button type="button" id="btn-cancel-ticket" class="ticket-close"><i class="fas fa-xmark"></i></button>
+                  </div>
+                  <form id="ticket-form">
+                    <input type="text" id="ticket-subject" placeholder="Subject" required>
+                    <textarea id="ticket-desc" rows="3" placeholder="Describe the issue…" required></textarea>
+                    <button type="submit" class="btn-primary">Submit Ticket</button>
+                  </form>
+                </div>
+                <div class="chat-composer support-composer" id="support-composer">
+                  <input type="text" id="support-ai-input" placeholder="Ask support…" autocomplete="off">
+                  <button type="button" id="btn-ticket-trigger" class="composer-ticket-btn" title="Raise a ticket"><i class="fas fa-ticket"></i></button>
+                  <button type="button" id="support-ai-send" aria-label="Send to AI"><i class="fas fa-paper-plane"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script type="module" src="./src/space.js"></script>

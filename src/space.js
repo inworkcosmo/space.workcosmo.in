@@ -612,7 +612,18 @@ function initWorkspace(user, profile, company) {
   initTicketForm(profile, _currentCompanyId);
   initChannelSwitcher();
 
+  const chatModal = document.getElementById("chat-modal");
+
   document.getElementById("show-chat-btn")?.addEventListener("click", () => {
-    document.querySelector(".messenger-area")?.scrollIntoView({ behavior: "smooth" });
+    chatModal?.classList.remove("hidden");
+    // Scroll active chat messages to bottom on open
+    const activeMessages = document.querySelector(".channel-pane.active .chat-messages");
+    if (activeMessages) {
+      activeMessages.scrollTop = activeMessages.scrollHeight;
+    }
+  });
+
+  document.getElementById("close-chat-btn")?.addEventListener("click", () => {
+    chatModal?.classList.add("hidden");
   });
 }
