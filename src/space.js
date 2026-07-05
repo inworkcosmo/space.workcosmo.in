@@ -18,6 +18,7 @@ import {
   addDoc,
   collection,
   query,
+  where,
   orderBy,
   limit,
   onSnapshot,
@@ -370,14 +371,14 @@ function initGroupChat(companyId, currentUserId) {
   const chatRef = collection(db, "workspaceChats");
   const q = query(
     chatRef,
+    where("companyId", "==", companyId),
     orderBy("createdAt", "asc"),
     limit(80)
   );
 
   _chatUnsub = onSnapshot(q, (snapshot) => {
     const companyMsgs = snapshot.docs
-      .map(d => ({ id: d.id, ...d.data() }))
-      .filter(m => m.companyId === companyId);
+      .map(d => ({ id: d.id, ...d.data() }));
 
     if (companyMsgs.length === 0) {
       messagesEl.innerHTML = `
