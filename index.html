@@ -61,10 +61,16 @@
           <img src="https://workcosmo.in/src/images/ngu_logo.png" alt="Workcosmo" />
           <span>Workcosmo Space</span>
         </a>
-        <button id="sign-out" type="button" class="top-bar-button">
-          <i class="fas fa-arrow-right-from-bracket"></i>
-          Sign out
-        </button>
+        <div class="top-bar-actions" style="display: flex; gap: 8px;">
+          <button id="show-chat-btn" type="button" class="top-bar-button">
+            <i class="fas fa-comments"></i>
+            Chat
+          </button>
+          <button id="sign-out" type="button" class="top-bar-button">
+            <i class="fas fa-arrow-right-from-bracket"></i>
+            Sign out
+          </button>
+        </div>
       </div>
 
       <div class="dashboard-main">
@@ -103,11 +109,6 @@
               </div>
             </article>
           </section>
-
-          <!-- Module Launchers Dock (now inline and beautifully styled) -->
-          <div class="dashboard-dock inline-dock">
-            <div id="modules-dock" class="modules-dock"></div>
-          </div>
 
           <!-- Scrolled Down: Teams-style Messenger -->
           <div class="messenger-area">
@@ -198,6 +199,9 @@
         </div>
       </div>
 
+      <div class="dashboard-dock">
+        <div id="modules-dock" class="modules-dock"></div>
+      </div>
     </section>
   </main>
 

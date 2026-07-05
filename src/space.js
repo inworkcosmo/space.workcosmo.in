@@ -611,4 +611,8 @@ function initWorkspace(user, profile, company) {
   initSupportAgent();
   initTicketForm(profile, _currentCompanyId);
   initChannelSwitcher();
+
+  document.getElementById("show-chat-btn")?.addEventListener("click", () => {
+    document.querySelector(".messenger-area")?.scrollIntoView({ behavior: "smooth" });
+  });
 }
