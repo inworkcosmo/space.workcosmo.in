@@ -207,6 +207,7 @@ function renderDashboard(user, profile, company) {
 
   els.loginView.classList.add("hidden");
   els.dashboardView.classList.remove("hidden");
+  document.querySelector(".dashboard-dock")?.classList.remove("hidden");
 }
 
 async function handleSignedIn(user) {
@@ -327,6 +328,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   } else {
     els.dashboardView.classList.add("hidden");
+    document.querySelector(".dashboard-dock")?.classList.add("hidden");
     els.loginView.classList.remove("hidden");
     teardownWorkspace();
   }
