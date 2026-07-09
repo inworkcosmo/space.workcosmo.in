@@ -85,7 +85,7 @@ export function buildModuleUrl(moduleKey, companyId, ssoToken = "") {
 
   const host = window.location.hostname.toLowerCase();
   const isLocal = host === "localhost" || host === "127.0.0.1" || host === "";
-  
+
   let url = "";
   if (isLocal) {
     if (moduleKey === "hire") {

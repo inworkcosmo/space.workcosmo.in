@@ -110,14 +110,16 @@ function bindModuleLaunchers(root, cid) {
     button.addEventListener("click", (event) => event.preventDefault());
   });
 
-  root.querySelectorAll("[data-launch-module]:not([aria-disabled='true'])").forEach((button) => {
-    button.addEventListener("click", async (event) => {
-      event.preventDefault();
-      const moduleKey = button.getAttribute("data-launch-module");
-      if (!moduleKey) return;
-      await launchModule(button, moduleKey, cid);
+  root
+    .querySelectorAll("[data-launch-module]:not([aria-disabled='true'])")
+    .forEach((button) => {
+      button.addEventListener("click", async (event) => {
+        event.preventDefault();
+        const moduleKey = button.getAttribute("data-launch-module");
+        if (!moduleKey) return;
+        await launchModule(button, moduleKey, cid);
+      });
     });
-  });
 }
 
 async function loadUserProfile(user) {
@@ -129,8 +131,20 @@ async function loadUserProfile(user) {
     }
 
     // Fallback: Handle misaligned UIDs by querying by email
-    const { collection, query, where, limit, getDocs, setDoc, serverTimestamp } = await import("./firebase.js");
-    const q = query(collection(db, "users"), where("email", "==", user.email), limit(1));
+    const {
+      collection,
+      query,
+      where,
+      limit,
+      getDocs,
+      setDoc,
+      serverTimestamp,
+    } = await import("./firebase.js");
+    const q = query(
+      collection(db, "users"),
+      where("email", "==", user.email),
+      limit(1),
+    );
     const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
@@ -142,7 +156,7 @@ async function loadUserProfile(user) {
         await setDoc(userRef, {
           ...data,
           userId: user.uid,
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         });
       } catch (fixErr) {
         console.warn("Auto-fix misaligned UID failed:", fixErr);
@@ -191,7 +205,8 @@ function renderModules(company) {
 }
 
 function renderDashboard(user, profile, company) {
-  const companyDisplayName = company?.companyName || company?.name || "Workcosmo Workspace";
+  const companyDisplayName =
+    company?.companyName || company?.name || "Workcosmo Workspace";
   const name = displayName(user, profile);
   const status = formatLabel(company?.status || "active");
   const enabledCount = countEnabledModules(company);
@@ -344,7 +359,10 @@ let _currentProfile = null;
 let _currentCompanyId = null;
 
 function teardownWorkspace() {
-  if (_chatUnsub) { _chatUnsub(); _chatUnsub = null; }
+  if (_chatUnsub) {
+    _chatUnsub();
+    _chatUnsub = null;
+  }
 }
 
 function formatTime(ts) {
@@ -357,8 +375,8 @@ function formatTime(ts) {
 
 function initGroupChat(companyId, currentUserId) {
   const messagesEl = document.getElementById("chat-messages");
-  const chatForm   = document.getElementById("chat-form");
-  const chatInput  = document.getElementById("chat-input");
+  const chatForm = document.getElementById("chat-form");
+  const chatInput = document.getElementById("chat-input");
   if (!messagesEl || !chatForm) return;
 
   // Show empty state initially
@@ -373,12 +391,11 @@ function initGroupChat(companyId, currentUserId) {
     chatRef,
     where("companyId", "==", companyId),
     orderBy("createdAt", "asc"),
-    limit(80)
+    limit(80),
   );
 
   _chatUnsub = onSnapshot(q, (snapshot) => {
-    const companyMsgs = snapshot.docs
-      .map(d => ({ id: d.id, ...d.data() }));
+    const companyMsgs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 
     if (companyMsgs.length === 0) {
       messagesEl.innerHTML = `
@@ -389,15 +406,23 @@ function initGroupChat(companyId, currentUserId) {
       return;
     }
 
-    messagesEl.innerHTML = companyMsgs.map(msg => {
-      const isOwn = msg.senderId === currentUserId;
-      const senderLabel = isOwn ? "You" : (msg.senderName || msg.senderEmail || "Teammate");
-      return `
+    messagesEl.innerHTML = companyMsgs
+      .map((msg) => {
+        const isOwn = msg.senderId === currentUserId;
+        const senderLabel = isOwn
+          ? "You"
+          : msg.senderName || msg.senderEmail || "Teammate";
+        return `
         <div class="chat-msg ${isOwn ? "own" : ""}">
-          <span class="chat-msg-meta">${senderLabel} · ${formatTime(msg.createdAt)}</span>
-          <div class="chat-bubble">${escapeHtml(msg.text)}</div>
+          <div class="msg-avatar"><i class="fas fa-user-circle"></i></div>
+          <div class="msg-content">
+            <span class="chat-msg-meta">${senderLabel}</span>
+            <div class="chat-bubble">${escapeHtml(msg.text)}</div>
+            <span class="msg-time">${formatTime(msg.createdAt)} ${isOwn ? '<i class="fas fa-check-double text-blue-500"></i>' : ""}</span>
+          </div>
         </div>`;
-    }).join("");
+      })
+      .join("");
 
     messagesEl.scrollTop = messagesEl.scrollHeight;
   });
@@ -412,8 +437,8 @@ function initGroupChat(companyId, currentUserId) {
     try {
       await addDoc(collection(db, "workspaceChats"), {
         companyId,
-        senderId:    currentUserId,
-        senderName:  _currentProfile?.name || _currentProfile?.displayName || "",
+        senderId: currentUserId,
+        senderName: _currentProfile?.name || _currentProfile?.displayName || "",
         senderEmail: _currentProfile?.email || "",
         text,
         createdAt: serverTimestamp(),
@@ -439,35 +464,154 @@ function escapeHtml(str = "") {
 /* ── AI Support Assistant ── */
 
 const SUPPORT_KNOWLEDGE = [
-  { keywords: ["hi", "hello", "hey", "greetings", "good morning", "good afternoon", "good evening", "howdy", "sup"],
-    answer: "👋 Hello! I'm your Workcosmo AI Support Assistant. I can help answer common questions about billing, client IDs, module launches, user invites, password resets, and performance issues. What can I help you with today?" },
-  { keywords: ["reset", "password", "forgot", "login", "signin", "sign in", "credential", "lockout"],
-    answer: "🔑 To reset your password, click the 'Send password reset' option on the login screen, enter your email, and follow the link sent to your inbox." },
-  { keywords: ["module", "launch", "product", "hire", "core", "perform", "app", "dashboard"],
-    answer: "🚀 You can launch modules (Hire, Core, Perform, AI) by clicking their corresponding active icons in the floating dock at the bottom of your dashboard." },
-  { keywords: ["account", "inactive", "blocked", "provisioned", "not active", "disable", "suspend"],
-    answer: "⚠️ If your account status is inactive or suspended, please request your workspace administrator to reactivate your profile in the Admin Console." },
-  { keywords: ["client id", "company id", "tenant", "workspace id", "slug"],
-    answer: "🆔 Your Client ID is a unique workspace identifier assigned to your company. If you don't know it, check your onboarding email or ask your system administrator." },
-  { keywords: ["billing", "payment", "invoice", "subscription", "price", "plan", "upgrade", "pay"],
-    answer: "💳 Billing settings, subscriptions, and upgrades are managed by company owners. You can also contact our billing desk directly by raising a ticket here." },
-  { keywords: ["slow", "loading", "performance", "lag", "freeze", "crash", "buffering"],
-    answer: "⚡ For speed issues, try refreshing your browser, clearing temporary cookies, or using Google Chrome. If it persists, let us know by raising a support ticket." },
-  { keywords: ["user", "invite", "add user", "add member", "create user", "new user", "provision"],
-    answer: "👤 System administrators can invite and manage workspace users directly from the access.workcosmo.in portal." },
-  { keywords: ["error", "bug", "broken", "not working", "issue", "fault", "defect"],
-    answer: "🛠️ Sorry to hear that! Please describe the error in detail. If we can't resolve it here, you can click the ticket icon (🎫) inside the message input bar to submit an investigation request." },
-  { keywords: ["help", "ticket", "human", "agent", "support", "raise", "contact", "support ticket"],
-    answer: "🎫 You can raise a support ticket anytime by clicking the ticket icon (🎫) in the support chat composer. Fill out the subject and details, and our team will get right on it!" },
-  { keywords: ["thanks", "thank you", "thanks!", "awesome", "perfect", "ok", "okay"],
-    answer: "😊 You're welcome! Let me know if you need help with anything else." }
+  {
+    keywords: [
+      "hi",
+      "hello",
+      "hey",
+      "greetings",
+      "good morning",
+      "good afternoon",
+      "good evening",
+      "howdy",
+      "sup",
+    ],
+    answer:
+      "👋 Hello! I'm your Workcosmo AI Support Assistant. I can help answer common questions about billing, client IDs, module launches, user invites, password resets, and performance issues. What can I help you with today?",
+  },
+  {
+    keywords: [
+      "reset",
+      "password",
+      "forgot",
+      "login",
+      "signin",
+      "sign in",
+      "credential",
+      "lockout",
+    ],
+    answer:
+      "🔑 To reset your password, click the 'Send password reset' option on the login screen, enter your email, and follow the link sent to your inbox.",
+  },
+  {
+    keywords: [
+      "module",
+      "launch",
+      "product",
+      "hire",
+      "core",
+      "perform",
+      "app",
+      "dashboard",
+    ],
+    answer:
+      "🚀 You can launch modules (Hire, Core, Perform, AI) by clicking their corresponding active icons in the floating dock at the bottom of your dashboard.",
+  },
+  {
+    keywords: [
+      "account",
+      "inactive",
+      "blocked",
+      "provisioned",
+      "not active",
+      "disable",
+      "suspend",
+    ],
+    answer:
+      "⚠️ If your account status is inactive or suspended, please request your workspace administrator to reactivate your profile in the Admin Console.",
+  },
+  {
+    keywords: ["client id", "company id", "tenant", "workspace id", "slug"],
+    answer:
+      "🆔 Your Client ID is a unique workspace identifier assigned to your company. If you don't know it, check your onboarding email or ask your system administrator.",
+  },
+  {
+    keywords: [
+      "billing",
+      "payment",
+      "invoice",
+      "subscription",
+      "price",
+      "plan",
+      "upgrade",
+      "pay",
+    ],
+    answer:
+      "💳 Billing settings, subscriptions, and upgrades are managed by company owners. You can also contact our billing desk directly by raising a ticket here.",
+  },
+  {
+    keywords: [
+      "slow",
+      "loading",
+      "performance",
+      "lag",
+      "freeze",
+      "crash",
+      "buffering",
+    ],
+    answer:
+      "⚡ For speed issues, try refreshing your browser, clearing temporary cookies, or using Google Chrome. If it persists, let us know by raising a support ticket.",
+  },
+  {
+    keywords: [
+      "user",
+      "invite",
+      "add user",
+      "add member",
+      "create user",
+      "new user",
+      "provision",
+    ],
+    answer:
+      "👤 System administrators can invite and manage workspace users directly from the access.workcosmo.in portal.",
+  },
+  {
+    keywords: [
+      "error",
+      "bug",
+      "broken",
+      "not working",
+      "issue",
+      "fault",
+      "defect",
+    ],
+    answer:
+      "🛠️ Sorry to hear that! Please describe the error in detail. If we can't resolve it here, you can click the ticket icon (🎫) inside the message input bar to submit an investigation request.",
+  },
+  {
+    keywords: [
+      "help",
+      "ticket",
+      "human",
+      "agent",
+      "support",
+      "raise",
+      "contact",
+      "support ticket",
+    ],
+    answer:
+      "🎫 You can raise a support ticket anytime by clicking the ticket icon (🎫) in the support chat composer. Fill out the subject and details, and our team will get right on it!",
+  },
+  {
+    keywords: [
+      "thanks",
+      "thank you",
+      "thanks!",
+      "awesome",
+      "perfect",
+      "ok",
+      "okay",
+    ],
+    answer:
+      "😊 You're welcome! Let me know if you need help with anything else.",
+  },
 ];
 
 function getSupportAnswer(question) {
   const q = question.toLowerCase().trim();
   if (!q) return null;
   for (const entry of SUPPORT_KNOWLEDGE) {
-    if (entry.keywords.some(k => q.includes(k) || k.includes(q))) {
+    if (entry.keywords.some((k) => q.includes(k) || k.includes(q))) {
       return entry.answer;
     }
   }
@@ -486,8 +630,8 @@ function appendSupportMsg(role, text) {
 }
 
 function initSupportAgent() {
-  const sendBtn   = document.getElementById("support-ai-send");
-  const input     = document.getElementById("support-ai-input");
+  const sendBtn = document.getElementById("support-ai-send");
+  const input = document.getElementById("support-ai-input");
   const ticketBtn = document.getElementById("btn-ticket-trigger");
   const cancelBtn = document.getElementById("btn-cancel-ticket");
   const ticketFormOverlay = document.getElementById("support-ticket-form");
@@ -502,23 +646,34 @@ function initSupportAgent() {
     appendSupportMsg("user", text);
 
     // Thinking indicator
-    const thinkingDiv = appendSupportMsg("thinking", "Workcosmo Support is thinking…");
+    const thinkingDiv = appendSupportMsg(
+      "thinking",
+      "Workcosmo Support is thinking…",
+    );
 
-    await new Promise(r => setTimeout(r, 700));
+    await new Promise((r) => setTimeout(r, 700));
 
     const answer = getSupportAnswer(text);
     if (thinkingDiv) thinkingDiv.remove();
 
     if (answer) {
       appendSupportMsg("assistant", answer);
-      appendSupportMsg("assistant", "Did that help? If not, feel free to raise a support ticket — our team will assist you directly.");
+      appendSupportMsg(
+        "assistant",
+        "Did that help? If not, feel free to raise a support ticket — our team will assist you directly.",
+      );
     } else {
-      appendSupportMsg("assistant", "I'm not sure about that one. Would you like to raise a support ticket so our team can help you directly?");
+      appendSupportMsg(
+        "assistant",
+        "I'm not sure about that one. Would you like to raise a support ticket so our team can help you directly?",
+      );
     }
   }
 
   sendBtn.addEventListener("click", sendMessage);
-  input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
 
   // Show ticket form
   if (ticketBtn && ticketFormOverlay && composer) {
@@ -546,7 +701,7 @@ function initTicketForm(profile, companyId) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const subject = document.getElementById("ticket-subject")?.value.trim();
-    const desc    = document.getElementById("ticket-desc")?.value.trim();
+    const desc = document.getElementById("ticket-desc")?.value.trim();
     if (!subject || !desc) return;
 
     const submitBtn = form.querySelector("button[type='submit']");
@@ -560,8 +715,8 @@ function initTicketForm(profile, companyId) {
         description: desc,
         status: "Open",
         submittedBy: {
-          uid:   auth.currentUser?.uid || "",
-          name:  profile?.name || profile?.displayName || "",
+          uid: auth.currentUser?.uid || "",
+          name: profile?.name || profile?.displayName || "",
           email: profile?.email || auth.currentUser?.email || "",
         },
         createdAt: serverTimestamp(),
@@ -578,10 +733,11 @@ function initTicketForm(profile, companyId) {
           <button type="button" class="btn-secondary" id="btn-close-success">Done</button>
         </div>`;
 
-      document.getElementById("btn-close-success")?.addEventListener("click", () => {
-        window.location.reload();
-      });
-
+      document
+        .getElementById("btn-close-success")
+        ?.addEventListener("click", () => {
+          window.location.reload();
+        });
     } catch (err) {
       console.error("Ticket submission failed:", err);
       submitBtn.disabled = false;
@@ -595,18 +751,27 @@ function initTicketForm(profile, companyId) {
 
 function initChannelSwitcher() {
   const contacts = document.querySelectorAll(".contact-item");
-  contacts.forEach(contact => {
+  contacts.forEach((contact) => {
     contact.addEventListener("click", () => {
       // Toggle active contact
-      contacts.forEach(c => c.classList.remove("active"));
+      contacts.forEach((c) => c.classList.remove("active"));
       contact.classList.add("active");
 
       // Toggle active pane
       const channel = contact.dataset.channel;
-      document.querySelectorAll(".channel-pane").forEach(pane => {
+      document.querySelectorAll(".channel-pane").forEach((pane) => {
         pane.classList.remove("active");
       });
       document.getElementById(`channel-${channel}`)?.classList.add("active");
+    });
+  });
+
+  // Tab switching logic for the sidebar
+  const tabs = document.querySelectorAll(".sidebar-tabs .tab");
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
     });
   });
 }
@@ -614,7 +779,7 @@ function initChannelSwitcher() {
 /* ── Init Workspace (called after login) ── */
 
 function initWorkspace(user, profile, company) {
-  _currentProfile   = profile;
+  _currentProfile = profile;
   _currentCompanyId = company.id || company.companyId;
 
   initGroupChat(_currentCompanyId, user.uid);
@@ -627,7 +792,9 @@ function initWorkspace(user, profile, company) {
   document.getElementById("show-chat-btn")?.addEventListener("click", () => {
     chatModal?.classList.remove("hidden");
     // Scroll active chat messages to bottom on open
-    const activeMessages = document.querySelector(".channel-pane.active .chat-messages");
+    const activeMessages = document.querySelector(
+      ".channel-pane.active .chat-messages",
+    );
     if (activeMessages) {
       activeMessages.scrollTop = activeMessages.scrollHeight;
     }
