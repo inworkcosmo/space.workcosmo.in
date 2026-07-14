@@ -262,6 +262,27 @@ async function handleSignedIn(user) {
   sessionStorage.setItem("tenant_client_id", profileCompanyId);
   renderDashboard(user, profile, company);
   initWorkspace(user, profile, company);
+
+  // Enforce single active session for Space
+  const spaceSessionId = crypto.randomUUID();
+  sessionStorage.setItem("space_session_id", spaceSessionId);
+  try {
+    const { setDoc, doc } = await import("./firebase.js");
+    await setDoc(doc(db, "users", user.uid), { activeSpaceSessionId: spaceSessionId }, { merge: true });
+  } catch (e) {
+    console.error("Failed to register Space session ID", e);
+  }
+
+  onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+    if (
+      docSnap.exists() &&
+      docSnap.data().activeSpaceSessionId &&
+      docSnap.data().activeSpaceSessionId !== spaceSessionId
+    ) {
+      alert("You have logged into Space from another tab or device. This Space session will now close.");
+      signOut(auth);
+    }
+  });
 }
 
 els.loginForm.addEventListener("submit", async (event) => {
